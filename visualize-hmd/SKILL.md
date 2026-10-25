@@ -47,6 +47,8 @@ Multiple patterns apply?
 | **Phase runway** | 4–6 cards in a row |
 | **Decision grid** | 2×N or 3×N cards |
 | **Brief** | General overview |
+| **Facet cards** | "Pick your role / period" filter without JavaScript |
+| **Row timeline bar** | When each item in a list happens (mini Gantt) |
 
 Use HTML fragments and tokens from [reference.md](reference.md) — do not invent new CSS class names.
 
@@ -95,7 +97,30 @@ For updates, follow [../../shared/README.md](../../shared/README.md).
 
 - Append or confirm reminder: `<!-- Enable Custom CSS preview: paintbrush → Custom CSS -->`
 - Tell the user to enable **Custom CSS** in the toolbar (required for `<style>` to apply).
-- If built output **> 500 KB**, warn; suggest more `<details>` or split notes.
+- Keep each note under about **100 KB**. HackMD rejects updates to larger notes. If the content is bigger, shrink it (see [reference.md → Shrinking a large note](reference.md#shrinking-a-large-note)) or split it into embedded notes (Step 7).
+
+### Step 7 — Share one style across notes with embedded notes
+
+HackMD can embed one note inside another with `{%hackmd <noteId> %}`. Use this to:
+
+- **Share one style across the account.** Put the `<style>` block in one style note. Every visualization embeds it, so all of them look the same, and one edit restyles them all.
+- **Reuse a block.** Put a card or section in its own note, then embed it in every note that needs it.
+- **Keep notes small.** Split a large visualization into several notes.
+
+```
+Style note (×1)    = <style>…</style> only
+Module note (×N)   = {%hackmd <styleId> %} + one block (for example one <details> card)
+Host note          = {%hackmd <styleId> %} + hero + headings + {%hackmd <moduleId> %} lines
+```
+
+1. Look for an existing style note in the user's account (for example a note titled `Style — visualize-hmd`). Reuse it if it exists. Create it only if it does not.
+2. In the style note, put only the `<style>` block. Write any explanation as an HTML comment, because visible text shows up in every note that embeds it.
+3. Create one module note per block. Start each module with `{%hackmd <styleId> %}`, so it looks right on its own and inside any other note.
+4. Write the host note by hand. Put each embed on its own line, with a blank line before and after it. Do not run `to-hackmd.py` on the host note, because it removes those blank lines.
+5. Give the style note and every module the same read permission as the notes that embed them. If the host is public, make them public too. Readers who cannot open a module see that part of the host as empty.
+6. Keep a list of the note ids, so the next update changes the existing notes instead of creating new ones.
+
+Embedded notes render inline, not in a frame. The host's CSS applies to them, `<details>` works inside them, and links to `id` anchors inside them work from the host. To lay modules out in a grid, see [reference.md → Embedded notes](reference.md#embedded-notes).
 
 ### Failure modes
 
@@ -104,6 +129,9 @@ For updates, follow [../../shared/README.md](../../shared/README.md).
 | `to-hackmd.py --strict` fails | Fix HTML (blank lines in body, `<main>`, unscoped `body{}`); rebuild |
 | Publish fails | Do not claim success; report CLI/API error |
 | User sees unstyled note | Custom CSS not enabled — repeat step 6 |
+| Update fails because the note is too large | Split it into embedded notes (Step 7) |
+| Text from the style note shows up in every note | Move that text into an HTML comment in the style note |
+| Part of a public note is empty for readers | Make the embedded note public too (Step 7, item 5) |
 
 ---
 
@@ -125,6 +153,7 @@ HackMD uses markdown-it (CommonMark). Type 6 HTML blocks (`<div>`, etc.) **end a
 - More than 3 accent colors
 - Omitting the crux when a hard trade-off exists
 - JavaScript (stripped by HackMD)
+- Copying the full `<style>` block into every note — embed the shared style note instead
 
 ---
 
