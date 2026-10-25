@@ -101,6 +101,9 @@ Use your HackMD MCP server's note-creation tool with the contents of `viz-hackmd
 | **Phase runway** | Sequential stages (Phase 0 → 1 → 2 → 3) |
 | **Decision grid** | Independent open questions for a dev team |
 | **Brief** | General topic overview with hero + sections |
+| **Facet cards** | A filter without JavaScript: one `<details>` card per role or period |
+| **Row timeline bar** | A small per-row bar that shows when each item happens |
+| **Shared style note** | One `<style>` note embedded in every visualization, so the whole account shares one look |
 
 See [reference.md](reference.md) for design tokens, card styles, and CSS snippets.
 
@@ -140,6 +143,7 @@ hackmd-skills/visualize-hmd/
 - **No `<html>` / `<head>` / `<body>` in published content** — use the build script
 - **Avoid `<main>`** — sanitizer removes the tag and may leak raw markup
 - Prefer **`<div>`** for layout containers (not `<main>`)
+- **Keep each note under about 100 KB.** Split larger content into embedded notes (`{%hackmd %}`); see SKILL.md Step 7
 
 ## License
 
