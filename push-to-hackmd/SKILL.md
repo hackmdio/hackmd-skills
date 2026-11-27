@@ -40,7 +40,7 @@ Identify what the user wants on HackMD. Supported in note body: **plaintext**, *
 | Workspace default | If context is obvious (e.g. single open `*.md` / `*.html`), use it; otherwise ask |
 | Multiple files | Combine with clear headings, or one note per file—confirm with user |
 
-**HTML/CSS**: If content is standalone HTML for rich layout, consider running `visualize-hmd`’s build step (`to-hackmd.py`) when blank lines or `<main>` would break HackMD rendering. After publish, remind the user to enable **Custom CSS** preview (paintbrush → Custom CSS) on the note.
+**HTML/CSS**: If content is standalone HTML for rich layout, consider running the `visualize-hmd` skill's build step (`to-hackmd.py`), if that skill is installed, when blank lines or `<main>` would break HackMD rendering. After publish, remind the user to enable **Custom CSS** preview (paintbrush → Custom CSS) on the note.
 
 **Title**: Derive from first `#` heading, filename stem, or ask once if unclear.
 
@@ -97,9 +97,9 @@ Pipe large bodies: `cat file.md | hackmd-cli notes create --title="..."`.
 
 ## 2. Authentication
 
-Ask: **Do you already have a HackMD API token?**
+Run `hackmd-cli whoami` first. If it succeeds, skip the rest of this step.
 
-If **no**:
+Otherwise ask: **Do you already have a HackMD API token?** If **no**:
 
 1. Account: [https://hackmd.io/join](https://hackmd.io/join)
 2. Create token: [https://hackmd.io/@docs/api-authorization](https://hackmd.io/@docs/api-authorization)
@@ -175,7 +175,9 @@ hackmd-cli team-notes create \
 
 If a **folder** is required, add `--parentFolderId=<folder-id>` to the create command.
 
-Capture the returned **note id**. Add `--output=json` to read it reliably.
+Capture the returned **note id**: add `--output=json` and read `.[0].id` (the output is an array). Do not re-run create if parsing fails; find the note by title instead, or you will create a duplicate.
+
+To verify permissions, folder placement, or the permalink, read the full note with `hackmd-cli api call GetNote --path noteId=<id>` (team: `GetTeamNote --path teampath=<team> --path noteId=<id>`). Folder placement shows in `folderPaths`; `--output=json` from `notes` only has table columns.
 
 ### Update (existing note) — avoid overwriting remote edits
 
@@ -213,7 +215,7 @@ If the user cannot install `hackmd-cli`, use the raw API in [../../shared/refere
 
 Return to the user:
 
-- Note URL: `https://hackmd.io/<noteId>` (or permalink from API if present)
+- Note URL: `https://hackmd.io/<noteId>` (or `publishLink` from `api call GetNote` if present)
 - Workspace (personal / team name)
 - Whether the note was created or updated
 - For HTML visualizations: Custom CSS preview reminder
@@ -223,15 +225,15 @@ Return to the user:
 ## Edge cases
 
 - **Very large content**: Prefer `cat file | hackmd-cli notes create` over inline shell quoting. If content **> 5 MB**, warn and confirm; if **> 50 MB**, stop (check HackMD limits).
-- **HTML with `<style>`**: Suggest `visualize-hmd` + `to-hackmd.py` if layout breaks; append HTML comment: `<!-- Enable Custom CSS preview (paintbrush → Custom CSS) -->`
+- **HTML with `<style>`**: Suggest the `visualize-hmd` skill (if installed) if layout breaks; append HTML comment: `<!-- Enable Custom CSS preview (paintbrush → Custom CSS) -->`
 - **Binary assets**: Not inlined in notes; upload images with `api call UploadNoteImage` or host elsewhere and link.
 - **No token and user declines install**: Stop with links to join + API authorization docs; do not guess credentials.
 - **Conflict on update**: Show a short summary of remote vs local diff; ask how to merge if unclear.
 
 ## Related skills
 
-- Rich HTML visualization pipeline: `visualize-hmd`
-- Reading HackMD notes: workspace rule `hackmd-cli.mdc` (export before edit, diff before push)
+- Rich HTML visualization pipeline: `visualize-hmd` skill
+- Any other HackMD operation: the official `hackmd-cli` skill (`npx skills add hackmdio/hackmd-cli`)
 
 ## References
 
