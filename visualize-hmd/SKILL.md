@@ -74,8 +74,8 @@ VIZ_TITLE="Visualization — <topic>" "$SKILL_DIR/scripts/publish-viz.sh" /tmp/v
 ```
 hackmd-cli in PATH and hackmd-cli whoami succeeds?
   yes → CLI (preferred)
-else HACKMD_API_TOKEN set?
-  yes → REST API (see push-to-hackmd / shared/references/api.md)
+else HMD_API_ACCESS_TOKEN set?
+  yes → REST API (see references/api.md)
 else HackMD MCP available?
   yes → MCP create_note
 else → stop; instruct user to hackmd-cli login or set token
@@ -86,10 +86,10 @@ else → stop; instruct user to hackmd-cli login or set token
 | User intent | Action |
 |-------------|--------|
 | "visualize" (default) | **Create** new note |
-| "update" / provides note URL or id | Resolve id → export baseline → replace body via [../../shared/scripts/safe-sync.sh](../../shared/scripts/safe-sync.sh) |
+| "update" / provides note URL or id | Resolve id → export baseline → replace body via [scripts/safe-sync.sh](scripts/safe-sync.sh) |
 | Same title already exists | Warn; ask before overwrite |
 
-For updates, follow [../../shared/README.md](../../shared/README.md).
+For updates, follow [references/contract.md](references/contract.md).
 
 ### Step 6 — Custom CSS + size
 
@@ -132,7 +132,7 @@ HackMD uses markdown-it (CommonMark). Type 6 HTML blocks (`<div>`, etc.) **end a
 
 - [../push-to-hackmd/SKILL.md](../push-to-hackmd/SKILL.md) — generic publish / backup
 - [../agentic-work-log/SKILL.md](../agentic-work-log/SKILL.md) — link new viz URL in work log callout when useful
-- [../shared/README.md](../shared/README.md) — safe update contract
+- [references/contract.md](references/contract.md) — safe update contract
 
 ## Design system
 

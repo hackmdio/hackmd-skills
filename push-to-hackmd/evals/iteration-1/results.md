@@ -49,7 +49,7 @@
 
 ## Skill revision items
 
-1. **API folder create:** Do not send `"parentFolderId": null` — API returns `Validation Failed`. Omit the field for root folders. Update [references/api.md](../references/api.md).
+1. **API folder create:** Do not send `"parentFolderId": null` — API returns `Validation Failed`. Omit the field for root folders. Update [references/api.md](../../references/api.md).
 2. **API token for folder/image ops:** When `hackmd-cli login` is used, read token from `~/.hackmd/config.json` (`accessToken`) for curl fallbacks; do not print the token.
 3. **Eval / docs:** Note that `engineering` may not exist; skill should prompt user to pick from `hackmd-cli teams` rather than assume team name.
 4. **Note id in examples:** `WNkLM6gkS0Cg2cQ8rv7bYA` in evals.json is a CLI doc example id and may 404 on real accounts.

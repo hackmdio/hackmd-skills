@@ -41,16 +41,16 @@ done
 ```
 hackmd-skills/
 ├── README.md
-├── shared/                  # safe-sync, resolve-note, API reference
-│   ├── README.md
-│   ├── references/api.md
-│   └── scripts/
+├── shared/                  # source for files used by several skills
+│   ├── references/          # contract.md, api.md
+│   └── scripts/             # safe-sync.sh, resolve-note.sh
+├── scripts/sync-shared.sh   # copies shared/ files into each skill
 ├── agentic-work-log/
 ├── push-to-hackmd/
 └── visualize-hmd/
 ```
 
-Cross-skill contracts (anti-clobber updates, destination policy): [shared/README.md](shared/README.md).
+Each skill is self-contained, so it works after `npx skills add` or `gh skill install`. Edit shared files in `shared/`, then run `scripts/sync-shared.sh`; see [shared/README.md](shared/README.md). The cross-skill contract (anti-clobber updates, destination policy) is [shared/references/contract.md](shared/references/contract.md).
 
 ## Migrating from `visualize-hmd` standalone repo
 
