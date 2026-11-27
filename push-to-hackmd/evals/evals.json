@@ -10,7 +10,7 @@
     {
       "id": 2,
       "prompt": "backup at HackMD: upload ./docs/runbook.md to my team workspace 'engineering' in a folder called Runbooks",
-      "expected_output": "Agent reads runbook.md, uses API for folder if needed, creates or updates team note under engineering, reports URL",
+      "expected_output": "Agent reads runbook.md, finds or creates the folder with hackmd-cli team-folders and passes --parentFolderId, creates or updates team note under engineering, reports URL",
       "files": []
     },
     {
