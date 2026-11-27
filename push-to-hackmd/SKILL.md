@@ -10,7 +10,7 @@ description: >-
 
 # Push to HackMD
 
-Publish or back up content to [HackMD](https://hackmd.io). Use **`hackmd-cli` 2.6.0 or later**. It covers notes, team notes, folders, and image upload, and `hackmd-cli api call` reaches any other HackMD v1 API operation. Use raw `curl` only when the CLI cannot be installed (see [../../shared/references/api.md](../../shared/references/api.md)).
+Publish or back up content to [HackMD](https://hackmd.io). Use **`hackmd-cli` 2.6.0 or later**. It covers notes, team notes, folders, and image upload, and `hackmd-cli api call` reaches any other HackMD v1 API operation. Use raw `curl` only when the CLI cannot be installed (see [references/api.md](references/api.md)).
 
 ## Trigger phrases
 
@@ -91,7 +91,7 @@ npm install -g @hackmd/hackmd-cli
 
 Pipe large bodies: `cat file.md | hackmd-cli notes create --title="..."`.
 
-**Note references**: read commands (`notes --noteId`, `export`) accept a permalink such as `@team/slug` directly. Before any update or `safe-sync.sh`, resolve URLs, permalinks, and short ids to the internal note id with [../../shared/scripts/resolve-note.sh](../../shared/scripts/resolve-note.sh).
+**Note references**: read commands (`notes --noteId`, `export`) accept a permalink such as `@team/slug` directly. Before any update or `safe-sync.sh`, resolve URLs, permalinks, and short ids to the internal note id with [scripts/resolve-note.sh](scripts/resolve-note.sh).
 
 ---
 
@@ -123,7 +123,7 @@ Never read, echo, or log the token, and never ask the user to paste it into chat
 
 ```
 User gave hackmd.io URL or note id?
-  yes → ../../shared/scripts/resolve-note.sh "<url-or-id>" → noteId (+ team:PATH on stderr if team URL)
+  yes → scripts/resolve-note.sh "<url-or-id>" → noteId (+ team:PATH on stderr if team URL)
 User said "new" / "create" / no existing note implied?
   yes → create path (step 4); capture new noteId from CLI output
 User said "update" / gave title to match?
@@ -181,12 +181,11 @@ To verify permissions, folder placement, or the permalink, read the full note wi
 
 ### Update (existing note) — avoid overwriting remote edits
 
-Follow [../../shared/README.md](../../shared/README.md) (safe update contract). Prefer the script:
+Follow [references/contract.md](references/contract.md) (safe update contract). Prefer the script, at `scripts/` in this skill's directory:
 
 ```bash
 # After building /path/to/working.md from baseline + your edits:
-REPO="$(cd "<skill-or-repo-root>" && pwd)"   # hackmd-skills checkout, or path to shared/
-"$REPO/shared/scripts/safe-sync.sh" push \
+<skill-dir>/scripts/safe-sync.sh push \
   --note-id "<id>" \
   --baseline-file /tmp/hackmd-baseline.md \
   --working-file /path/to/working.md \
@@ -209,7 +208,7 @@ Use `--mime image/png` if the file extension is missing or unusual.
 
 ### No CLI available
 
-If the user cannot install `hackmd-cli`, use the raw API in [../../shared/references/api.md](../../shared/references/api.md).
+If the user cannot install `hackmd-cli`, use the raw API in [references/api.md](references/api.md).
 
 ### Finish
 
@@ -237,8 +236,8 @@ Return to the user:
 
 ## References
 
-- [../../shared/README.md](../../shared/README.md) — safe update contract, destination policy
-- [../../shared/references/api.md](../../shared/references/api.md) — raw API fallback when the CLI is unavailable
-- [../../shared/scripts/safe-sync.sh](../../shared/scripts/safe-sync.sh) — push with recheck
+- [references/contract.md](references/contract.md) — safe update contract, destination policy
+- [references/api.md](references/api.md) — raw API fallback when the CLI is unavailable
+- [scripts/safe-sync.sh](scripts/safe-sync.sh) — push with recheck
 - [HackMD API swagger](https://api.hackmd.io/v1/docs/swagger.json)
 - [hackmd-cli](https://github.com/hackmdio/hackmd-cli)

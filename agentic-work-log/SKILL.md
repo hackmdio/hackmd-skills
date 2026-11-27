@@ -83,7 +83,7 @@ Env（排程用）：`AGENTIC_WORK_LOG_NOTE_ID`、`AGENTIC_WORK_LOG_NOTE_URL`、
 ### 解析既有筆記
 
 ```bash
-../../shared/scripts/resolve-note.sh "https://hackmd.io/..."   # stdout=noteId; stderr team:PATH 若為 team URL
+<skill-dir>/scripts/resolve-note.sh "https://hackmd.io/..."   # stdout=noteId; stderr team:PATH 若為 team URL
 ```
 
 或手動：`https://hackmd.io/<noteId>` 取路徑最後一段；`@team/slug` 可直接用於讀取（`export --noteId=@team/slug`）；更新前一律先用 `resolve-note.sh` 換成內部 note id。
@@ -186,15 +186,14 @@ hackmd-cli export --noteId=<TARGET_NOTE> > /tmp/agentic-work-log.md
 
 ## Phase H：寫回 HackMD
 
-遵循 [../../shared/README.md](../../shared/README.md)。
+遵循 [references/contract.md](references/contract.md)。
 
 1. `export` → `/tmp/agentic-work-log-baseline.md`
 2. 在 baseline 上套用 Phase G append → `/tmp/agentic-work-log-working.md`
 3. 執行 safe-sync（會再 export 比對 baseline）：
 
 ```bash
-REPO="<path-to-hackmd-skills-checkout>"
-"$REPO/shared/scripts/safe-sync.sh" push \
+<skill-dir>/scripts/safe-sync.sh push \
   --note-id "<TARGET_NOTE>" \
   --baseline-file /tmp/agentic-work-log-baseline.md \
   --working-file /tmp/agentic-work-log-working.md \
@@ -236,7 +235,7 @@ REPO="<path-to-hackmd-skills-checkout>"
 
 ## 相關 skill
 
-- `push-to-hackmd` — 通用發佈；本 skill 的 Phase H 使用 `shared/scripts/safe-sync.sh`  
+- `push-to-hackmd` — 通用發佈；本 skill 的 Phase H 使用 `scripts/safe-sync.sh`  
 - `visualize-hmd` — 從對話產出 HTML 視覺化並發佈至 HackMD
 
 ---
@@ -248,4 +247,4 @@ REPO="<path-to-hackmd-skills-checkout>"
 - [references/scheduling.md](references/scheduling.md)  
 - [scripts/collect_prompts.py](scripts/collect_prompts.py)  
 - [scripts/run-scheduled.sh](scripts/run-scheduled.sh)
-- [../../shared/README.md](../../shared/README.md) — safe update 契約
+- [references/contract.md](references/contract.md) — safe update 契約

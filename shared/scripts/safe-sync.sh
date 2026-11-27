@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Push working content only if remote unchanged since baseline export.
-# See ../README.md for the full anti-clobber contract.
+# See ../references/contract.md for the full anti-clobber contract.
 set -euo pipefail
 
 usage() {
