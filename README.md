@@ -20,23 +20,36 @@ The skills above build on `hackmd-cli`. Its official skill lives in the CLI repo
 
 ## Installation
 
-Install with the [`skills`](https://github.com/vercel-labs/skills) CLI. It asks which skills and which agents to install to.
-
 ```bash
-# Skills from this repository
 npx skills add hackmdio/hackmd-skills
-
-# The hackmd-cli skill
 npx skills add hackmdio/hackmd-cli
 ```
 
-To install one skill without prompts, name it and add `-g` (all projects) and `-y`:
+[`npx skills`](https://github.com/vercel-labs/skills) asks which skills to install and which agents to install them for. The second command installs the `hackmd-cli` skill.
+
+### Other installation methods
+
+<details>
+<summary><b>GitHub CLI</b></summary>
 
 ```bash
-npx skills add hackmdio/hackmd-skills --skill push-to-hackmd -g -y
+gh skill install hackmdio/hackmd-skills push-to-hackmd
+gh skill install hackmdio/hackmd-cli hackmd-cli
 ```
 
-To install by hand instead, copy a skill folder into your agent's skills directory, such as `~/.claude/skills/` for Claude Code or `~/.cursor/skills/` for Cursor.
+</details>
+
+<details>
+<summary><b>Manual copy</b></summary>
+
+Copy a skill folder into your agent's skills directory, such as `~/.claude/skills/` for Claude Code or `~/.cursor/skills/` for Cursor.
+
+```bash
+git clone https://github.com/hackmdio/hackmd-skills.git /tmp/hackmd-skills
+cp -R /tmp/hackmd-skills/push-to-hackmd ~/.claude/skills/
+```
+
+</details>
 
 ## Requirements
 
