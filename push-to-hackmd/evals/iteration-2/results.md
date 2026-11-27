@@ -24,7 +24,7 @@ Each eval ran in a fresh agent that only had the installed skill directory.
 - The token question is skipped when `hackmd-cli whoami` succeeds.
 - `visualize-hmd` is optional; the missing `hackmd-cli.mdc` reference was removed.
 
-## Open
+## Notes
 
-- Team notes default to `--readPermission=owner`. Decide whether team backups should default to team-readable.
+- Team notes keep the `--readPermission=owner` default (decided 2026-11-27); the user can ask for a wider permission.
 - `--content="$(cat file)"` drops the trailing newline. HackMD does not keep it either, so the content is unaffected.
