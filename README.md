@@ -33,8 +33,8 @@ npx skills add hackmdio/hackmd-cli
 <summary><b>GitHub CLI</b></summary>
 
 ```bash
-gh skill install hackmdio/hackmd-skills push-to-hackmd
-gh skill install hackmdio/hackmd-cli hackmd-cli
+gh skill install hackmdio/hackmd-skills push-to-hackmd --scope user
+gh skill install hackmdio/hackmd-cli hackmd-cli --scope user
 ```
 
 </details>
