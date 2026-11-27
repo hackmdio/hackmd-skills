@@ -2,7 +2,7 @@
 
 Official [HackMD](https://hackmd.io) agent skills for Claude Code, Cursor, Codex, and compatible harnesses.
 
-Each subdirectory is a self-contained skill (with `SKILL.md`). Install by copying the folder into your harness skills directory, or clone this repo and symlink/copy individual skills.
+Each subdirectory is a self-contained skill (with `SKILL.md`).
 
 ## Skills
 
@@ -12,24 +12,44 @@ Each subdirectory is a self-contained skill (with `SKILL.md`). Install by copyin
 | [`push-to-hackmd/`](push-to-hackmd/) | Publish or back up plans, Markdown, HTML, or files to HackMD (personal or team workspace). |
 | [`visualize-hmd/`](visualize-hmd/) | Turn plans and trade-offs into HTML/CSS visualizations and publish to HackMD. |
 
+The skills above build on `hackmd-cli`. Its official skill lives in the CLI repository, so it stays in sync with each CLI release:
+
+| Skill | Description |
+|-------|-------------|
+| [`hackmd-cli`](https://github.com/hackmdio/hackmd-cli/tree/develop/hackmd-cli) | Manage notes, folders, and any other HackMD v1 API operation with `hackmd-cli`. |
+
 ## Installation
 
-### One skill (example: `push-to-hackmd`)
-
 ```bash
-git clone https://github.com/hackmd-product/hackmd-skills.git /tmp/hackmd-skills
-cp -R /tmp/hackmd-skills/push-to-hackmd ~/.cursor/skills/
-# Claude Code: ~/.claude/skills/ or ~/.agents/skills/
+npx skills add hackmdio/hackmd-skills
+npx skills add hackmdio/hackmd-cli
 ```
 
-### Cursor (all skills)
+[`npx skills`](https://github.com/vercel-labs/skills) asks which skills to install and which agents to install them for. The second command installs the `hackmd-cli` skill.
+
+### Other installation methods
+
+<details>
+<summary><b>GitHub CLI</b></summary>
 
 ```bash
-git clone https://github.com/hackmd-product/hackmd-skills.git /tmp/hackmd-skills
-for skill in agentic-work-log push-to-hackmd visualize-hmd; do
-  cp -R "/tmp/hackmd-skills/$skill" ~/.cursor/skills/
-done
+gh skill install hackmdio/hackmd-skills push-to-hackmd --scope user
+gh skill install hackmdio/hackmd-cli hackmd-cli --scope user
 ```
+
+</details>
+
+<details>
+<summary><b>Manual copy</b></summary>
+
+Copy a skill folder into your agent's skills directory, such as `~/.claude/skills/` for Claude Code or `~/.cursor/skills/` for Cursor.
+
+```bash
+git clone https://github.com/hackmdio/hackmd-skills.git /tmp/hackmd-skills
+cp -R /tmp/hackmd-skills/push-to-hackmd ~/.claude/skills/
+```
+
+</details>
 
 ## Requirements
 
