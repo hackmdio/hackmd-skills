@@ -28,7 +28,11 @@ MANIFEST=(
 )
 
 CHECK=false
-[[ "${1:-}" == "--check" ]] && CHECK=true
+case "${1:-}" in
+  "") ;;
+  --check) CHECK=true ;;
+  *) echo "usage: scripts/sync-shared.sh [--check]" >&2; exit 2 ;;
+esac
 
 stale=0
 for entry in "${MANIFEST[@]}"; do

@@ -130,8 +130,8 @@ HackMD uses markdown-it (CommonMark). Type 6 HTML blocks (`<div>`, etc.) **end a
 
 ## Related skills
 
-- [../push-to-hackmd/SKILL.md](../push-to-hackmd/SKILL.md) — generic publish / backup
-- [../agentic-work-log/SKILL.md](../agentic-work-log/SKILL.md) — link new viz URL in work log callout when useful
+- `push-to-hackmd` skill — generic publish / backup
+- `agentic-work-log` skill — link new viz URL in work log callout when useful
 - [references/contract.md](references/contract.md) — safe update contract
 
 ## Design system
