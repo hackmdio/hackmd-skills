@@ -314,8 +314,130 @@ details[open] { background: var(--bg-surface); }
 | `<html>` / `<head>` / `<body>` | ❌ omit — HackMD wraps the note itself |
 | External CSS `<link>` | ❌ not rendered |
 | Inline SVG | ✅ (safe attributes only) |
+| `{%hackmd <noteId> %}` embeds | ✅ inline; an embedded note can embed another |
+| `:has()` selector | ✅ |
+| Mermaid (` ```mermaid `, incl. `gantt`) | ✅ |
 
 **Selector scope**: HackMD wraps content in `.markdown-body`. Custom classes don't need prefixing unless you're overriding default prose styles (headings, links, tables).
+
+**Size**: keep each note under about 100 KB. See [Shrinking a large note](#shrinking-a-large-note) and [Embedded notes](#embedded-notes).
+
+---
+
+## Filter without JavaScript: facet cards
+
+HackMD has no JavaScript, so a "pick your role / pick a period" filter is a grid of `<details>` cards. Each card holds the items for one facet. An opened card spans the full row.
+
+```html
+<div class="facet-grid">
+<details><summary><a id="r-parent"></a><span class="facet-tag">P</span><b>Parents</b><small>19 items · e.g. …</small></summary>
+<!-- items -->
+</details>
+<!-- one <details> per facet -->
+</div>
+```
+
+```css
+.facet-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:10px; align-items:start; }
+.facet-grid > details { padding:12px 14px; border:1px solid var(--border); border-radius:14px; background:var(--bg-surface) !important; }
+.facet-grid > details[open] { grid-column:1 / -1; border-color:rgb(86 77 255 / 45%); }
+```
+
+- Put an `<a id>` inside each `<summary>`. Other parts of the note can then link to a facet (for example from a tag on an item in another facet).
+- An item that belongs to several facets is repeated in each card.
+
+---
+
+## Row timeline bar (mini Gantt)
+
+To show when each item happens inside a list, give every row a small bar with one cell per period. Rows in the same list line up, so an opened card reads like a small Gantt chart. Use a Mermaid `gantt` block for the full overview, because it is long.
+
+```html
+<div class="tl-ruler"><span></span><div><span>●</span><span>0–6 mo</span><span>Y1–2</span><span>Y3–4</span><span>Y5–8</span></div></div>
+<div class="tl-row"><div><a href="…">Item name</a><br><small>Y1–2 design; Y3–4 build</small></div>
+<span class="tl-bar"><i class="d"></i><i></i><i class="a"></i><i class="a"></i><i></i></span></div>
+```
+
+```css
+.tl-row, .tl-ruler { display:grid; grid-template-columns:1fr 168px; gap:10px; align-items:center; }
+.tl-ruler > div, .tl-bar { display:grid; grid-template-columns:8px repeat(4, 1fr); gap:2px; text-align:center; font-size:11px; }
+.tl-bar i { height:10px; border-radius:3px; background:var(--border); }
+.tl-bar i.d { width:8px; height:8px; border-radius:50%; background:transparent; }  /* start marker */
+.tl-bar i.d.a { background:var(--green); }
+.tl-bar i.a { background:var(--primary); }
+.tl-bar i.f { background:repeating-linear-gradient(135deg, var(--primary) 0 3px, var(--primary-soft) 3px 6px); }  /* vague period */
+@media (max-width:560px) { .tl-row { grid-template-columns:1fr; } .tl-ruler { display:none; } }
+```
+
+- Use one-letter class names on the cells. The bar repeats on every row, so short names keep the note small.
+- Use a hatched cell for a period that the source states only vaguely (for example "short term"), so the bar does not claim false precision.
+
+---
+
+## Embedded notes
+
+Host note: embed the style note, then wrap the module embeds in a layout `<div>`. Keep a blank line between every embed and around the wrapper tags.
+
+```markdown
+{%hackmd <styleNoteId> %}
+
+<div class="viz-shell"><div class="module-grid">
+
+{%hackmd <moduleNoteId-1> %}
+
+{%hackmd <moduleNoteId-2> %}
+
+</div></div>
+```
+
+Module note: embed the style note, then one block.
+
+```markdown
+{%hackmd <styleNoteId> %}
+
+<div class="viz-shell"><div class="facet-grid">
+<details>…</details>
+</div></div>
+```
+
+Style note: only the `<style>` block, plus HTML comments if you need to explain it.
+
+```markdown
+<style>
+.viz-shell { … }
+</style>
+
+<!-- Shared style for visualize-hmd notes. Embed with {%hackmd <this note id> %}. -->
+```
+
+Each embed renders as `div.part.embed-note`, which becomes the grid child. Target it in the host grid:
+
+```css
+.module-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:10px; align-items:start; }
+.module-grid > * { min-width:0; margin:0 !important; }
+.module-grid > :has(details[open]) { grid-column:1 / -1; }   /* an opened card spans the row */
+.module-grid .facet-grid { margin:0; grid-template-columns:1fr; }
+```
+
+- A module works on its own, inside the host, and inside any other note that embeds it.
+- Links to `<a id="…">` anchors inside a module work only in notes that embed that module.
+
+---
+
+## Shrinking a large note
+
+When a note gets close to 100 KB, try these first. Each one keeps all the content.
+
+| Technique | How | Saves |
+|---|---|---|
+| Unencoded URL paths | Write non-ASCII path segments as plain text (`/@team/政見`), not `%E6%94%BF%E8%A6%8B`. Keep `%2F` and `%40` as they are | About ⅔ of the bytes in each CJK path |
+| Relative links | Write links within hackmd.io as `/@team/page`, not `https://hackmd.io/@team/page` | 17 bytes per link |
+| Short class names | Use one-letter class names on elements that repeat on every row (for example the cells of a timeline bar: `<i class="a">`) | 5–15 bytes per element |
+| No empty attributes | Leave out `class=""` and other empty attributes | About 9 bytes per element |
+| Chip rows | Show a long list without details as a row of chips (name and tags only), not as full cards | Large for lists of 40+ items |
+
+- Measure size in bytes, not characters. Chinese, Japanese and Korean text uses 3 bytes per character.
+- If the note is still too large, split it into [embedded notes](#embedded-notes).
 
 ---
 
