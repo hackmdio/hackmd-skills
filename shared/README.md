@@ -55,7 +55,7 @@ Exit codes: `0` = updated, `1` = conflict (remote changed since baseline), `2` =
 
 ## References
 
-- [references/api.md](references/api.md) — folders, images, team routes (single copy for all skills)
+- [references/api.md](references/api.md) — raw API fallback when `hackmd-cli` is unavailable (single copy for all skills)
 
 ## Related skills
 

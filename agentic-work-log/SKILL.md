@@ -86,7 +86,7 @@ Env（排程用）：`AGENTIC_WORK_LOG_NOTE_ID`、`AGENTIC_WORK_LOG_NOTE_URL`、
 ../../shared/scripts/resolve-note.sh "https://hackmd.io/..."   # stdout=noteId; stderr team:PATH 若為 team URL
 ```
 
-或手動：`https://hackmd.io/<noteId>` 取路徑最後一段；`@team/shortId` 用 `team-notes --output=json` + `jq`（見 `resolve-note.sh`）。
+或手動：`https://hackmd.io/<noteId>` 取路徑最後一段；`@team/slug` 可直接用於讀取（`export --noteId=@team/slug`）；更新前一律先用 `resolve-note.sh` 換成內部 note id。
 
 記下 `TARGET_NOTE`、`hackmd_team_path`（若有）。
 

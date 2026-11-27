@@ -46,7 +46,7 @@ hackmd-cli export --noteId="$NOTE_ID" >"$RECHECK"
 
 if ! diff -q "$BASELINE" "$RECHECK" >/dev/null 2>&1; then
   echo "CONFLICT: remote note changed since baseline export" >&2
-  diff -u "$BASELINE" "$RECHECK" >&2 | head -100 || true
+  diff -u "$BASELINE" "$RECHECK" | head -100 >&2 || true
   exit 1
 fi
 

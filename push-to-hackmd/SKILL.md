@@ -10,7 +10,7 @@ description: >-
 
 # Push to HackMD
 
-Publish or back up content to [HackMD](https://hackmd.io). Prefer **`hackmd-cli`**; fall back to the [HackMD REST API](https://api.hackmd.io/v1/docs/swagger.json) when the CLI cannot do the operation (folders, image upload, `parentFolderId`).
+Publish or back up content to [HackMD](https://hackmd.io). Use **`hackmd-cli` 2.6.0 or later**. It covers notes, team notes, folders, and image upload, and `hackmd-cli api call` reaches any other HackMD v1 API operation. Use raw `curl` only when the CLI cannot be installed (see [../../shared/references/api.md](../../shared/references/api.md)).
 
 ## Trigger phrases
 
@@ -21,7 +21,7 @@ Publish or back up content to [HackMD](https://hackmd.io). Prefer **`hackmd-cli`
 ```
 Task Progress:
 - [ ] 0. Resolve content to sync
-- [ ] 1. Ensure hackmd-cli (or API token) is ready
+- [ ] 1. Ensure hackmd-cli 2.6.0+ is ready
 - [ ] 2. Confirm HackMD auth (token / login)
 - [ ] 3. Choose destination (workspace, team, folder, note)
 - [ ] 4. Sync (create or update; avoid clobbering remote edits)
@@ -31,7 +31,7 @@ Task Progress:
 
 ## 0. Determine content
 
-Identify what the user wants on HackMD. Supported in note body: **plaintext**, **Markdown**, **HTML**, **CSS** (inline or in `<style>`). **Images**: embed as URLs, or upload via API after a note exists (see [references/api.md](references/api.md)).
+Identify what the user wants on HackMD. Supported in note body: **plaintext**, **Markdown**, **HTML**, **CSS** (inline or in `<style>`). **Images**: embed as URLs, or upload local files after the note exists (see [Images](#images-optional)).
 
 | Source | How to obtain |
 |--------|----------------|
@@ -40,7 +40,7 @@ Identify what the user wants on HackMD. Supported in note body: **plaintext**, *
 | Workspace default | If context is obvious (e.g. single open `*.md` / `*.html`), use it; otherwise ask |
 | Multiple files | Combine with clear headings, or one note per file—confirm with user |
 
-**HTML/CSS**: If content is standalone HTML for rich layout, consider running `visualize-hmd`’s build step (`to-hackmd.py`) when blank lines or `<main>` would break HackMD rendering. After publish, remind the user to enable **Custom CSS** preview (paintbrush → Custom CSS) on the note.
+**HTML/CSS**: If content is standalone HTML for rich layout, consider running the `visualize-hmd` skill's build step (`to-hackmd.py`), if that skill is installed, when blank lines or `<main>` would break HackMD rendering. After publish, remind the user to enable **Custom CSS** preview (paintbrush → Custom CSS) on the note.
 
 **Title**: Derive from first `#` heading, filename stem, or ask once if unclear.
 
@@ -53,6 +53,8 @@ Identify what the user wants on HackMD. Supported in note body: **plaintext**, *
 ```bash
 command -v hackmd-cli && hackmd-cli version
 ```
+
+Require **2.6.0 or later**. Older versions lack `api call`, and versions before 2.5.0 lack folders. If it is older, ask before upgrading with `npm install -g @hackmd/hackmd-cli@latest`.
 
 If missing, tell the user:
 
@@ -81,38 +83,35 @@ npm install -g @hackmd/hackmd-cli
 | Update personal | `hackmd-cli notes update --noteId=<id> --content="..."` |
 | Create team | `hackmd-cli team-notes create --teamPath=<team> --title="..." --content="..." ...` |
 | Update team | `hackmd-cli team-notes update --teamPath=<team> --noteId=<id> --content="..."` |
+| List / create folders | `hackmd-cli folders`, `hackmd-cli folders create --name="..."` (team: `team-folders --teamPath=<team>`) |
+| Create in folder | add `--parentFolderId=<folder-id>` to `notes create` / `team-notes create` |
+| Move into folder | `notes update --noteId=<id> --parentFolderId=<folder-id>` (`--root` moves back to top level) |
+| Upload image | `hackmd-cli api call UploadNoteImage --path noteId=<id> --file image=@<path>` |
+| Any other API operation | `hackmd-cli api operations`, `api describe <OperationId>`, `api call <OperationId>` |
 
 Pipe large bodies: `cat file.md | hackmd-cli notes create --title="..."`.
 
-**Short URLs / team paths**: `export` accepts API note id; for `@team/shortId`, resolve internal id via `hackmd-cli team-notes --teamPath=<team> --output=json` then export/update.
-
-**Folders** are not in the CLI — use API (`POST /folders`, `parentFolderId` on note create/update). See [references/api.md](references/api.md).
+**Note references**: read commands (`notes --noteId`, `export`) accept a permalink such as `@team/slug` directly. Before any update or `safe-sync.sh`, resolve URLs, permalinks, and short ids to the internal note id with [../../shared/scripts/resolve-note.sh](../../shared/scripts/resolve-note.sh).
 
 ---
 
 ## 2. Authentication
 
-Ask: **Do you already have a HackMD API token?**
+Run `hackmd-cli whoami` first. If it succeeds, skip the rest of this step.
 
-If **no**:
+Otherwise ask: **Do you already have a HackMD API token?** If **no**:
 
 1. Account: [https://hackmd.io/join](https://hackmd.io/join)
 2. Create token: [https://hackmd.io/@docs/api-authorization](https://hackmd.io/@docs/api-authorization)
-3. Either:
-   - `hackmd-cli login` and paste the token, or
-   - `export HACKMD_API_TOKEN="<token>"` for API/curl fallbacks
+3. The user runs `hackmd-cli login` and pastes the token, or sets `HMD_API_ACCESS_TOKEN` in their shell.
 
 Verify:
 
 ```bash
 hackmd-cli whoami
-# or
-curl -s -H "Authorization: Bearer $HACKMD_API_TOKEN" https://api.hackmd.io/v1/me
 ```
 
-Do not echo or log the token. If login fails, re-check token scope and expiry.
-
-When using API fallbacks after `hackmd-cli login`, read the token from `~/.hackmd/config.json` (`accessToken`) into `HACKMD_API_TOKEN` in a **subshell** for `curl` only — **never** `echo` the token or paste it into chat.
+Never read, echo, or log the token, and never ask the user to paste it into chat. All operations, including image upload, go through `hackmd-cli`, so the agent does not need the token itself. If login fails, re-check token scope and expiry.
 
 ---
 
@@ -139,7 +138,10 @@ User named a team?
 No team mentioned?
   → personal workspace (hackmd-cli notes)
 Folder requested?
-  → API only; see ../../shared/references/api.md
+  → hackmd-cli folders --output=json (team: team-folders --teamPath=X --output=json)
+        • exact name match → use its id as parentFolderId
+        • no match → ask, then hackmd-cli folders create --name="..."
+          (team: hackmd-cli team-folders create --teamPath=X --name="...")
 ```
 
 Record `noteId`, `teamPath` (if any), `parentFolderId` (if folder used).
@@ -171,9 +173,11 @@ hackmd-cli team-notes create \
   --content="$(cat /path/to/content.md)"
 ```
 
-If a **folder** is required, create the note via API with `parentFolderId`, or `PATCH` after create — see [../../shared/references/api.md](../../shared/references/api.md).
+If a **folder** is required, add `--parentFolderId=<folder-id>` to the create command.
 
-Capture returned **note id** from CLI table output.
+Capture the returned **note id**: add `--output=json` and read `.[0].id` (the output is an array). Do not re-run create if parsing fails; find the note by title instead, or you will create a duplicate.
+
+To verify permissions, folder placement, or the permalink, read the full note with `hackmd-cli api call GetNote --path noteId=<id>` (team: `GetTeamNote --path teampath=<team> --path noteId=<id>`). Folder placement shows in `folderPaths`; `--output=json` from `notes` only has table columns.
 
 ### Update (existing note) — avoid overwriting remote edits
 
@@ -195,33 +199,23 @@ Manual equivalent: export baseline → edit working copy → `safe-sync.sh push`
 
 ### Images (optional)
 
-After the note exists, upload local images via API `POST /v1/notes/{noteId}/images`, then insert returned `data.link` into the markdown. Details: [../../shared/references/api.md](../../shared/references/api.md).
-
-### API fallback
-
-When CLI is unavailable or insufficient:
+After the note exists, upload each local image, then insert the returned `data.link` into the markdown and update the note (safe update contract applies):
 
 ```bash
-# Create
-curl -s -X POST https://api.hackmd.io/v1/notes \
-  -H "Authorization: Bearer $HACKMD_API_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d "{\"title\":\"<title>\",\"content\":$(jq -Rs . < file.md),\"readPermission\":\"owner\",\"writePermission\":\"owner\"}"
-
-# Update
-curl -s -X PATCH "https://api.hackmd.io/v1/notes/<noteId>" \
-  -H "Authorization: Bearer $HACKMD_API_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d "{\"content\":$(jq -Rs . < file.md)}"
+hackmd-cli api call UploadNoteImage --path noteId=<id> --file image=@/path/to/screenshot.png | jq -r '.data.link'
 ```
 
-Team endpoints: `/v1/teams/{teampath}/notes` — see [../../shared/references/api.md](../../shared/references/api.md).
+Use `--mime image/png` if the file extension is missing or unusual.
+
+### No CLI available
+
+If the user cannot install `hackmd-cli`, use the raw API in [../../shared/references/api.md](../../shared/references/api.md).
 
 ### Finish
 
 Return to the user:
 
-- Note URL: `https://hackmd.io/<noteId>` (or permalink from API if present)
+- Note URL: `https://hackmd.io/<noteId>` (or `publishLink` from `api call GetNote` if present)
 - Workspace (personal / team name)
 - Whether the note was created or updated
 - For HTML visualizations: Custom CSS preview reminder
@@ -231,20 +225,20 @@ Return to the user:
 ## Edge cases
 
 - **Very large content**: Prefer `cat file | hackmd-cli notes create` over inline shell quoting. If content **> 5 MB**, warn and confirm; if **> 50 MB**, stop (check HackMD limits).
-- **HTML with `<style>`**: Suggest `visualize-hmd` + `to-hackmd.py` if layout breaks; append HTML comment: `<!-- Enable Custom CSS preview (paintbrush → Custom CSS) -->`
-- **Binary assets**: Not inlined in notes; upload images via API or host elsewhere and link.
+- **HTML with `<style>`**: Suggest the `visualize-hmd` skill (if installed) if layout breaks; append HTML comment: `<!-- Enable Custom CSS preview (paintbrush → Custom CSS) -->`
+- **Binary assets**: Not inlined in notes; upload images with `api call UploadNoteImage` or host elsewhere and link.
 - **No token and user declines install**: Stop with links to join + API authorization docs; do not guess credentials.
 - **Conflict on update**: Show a short summary of remote vs local diff; ask how to merge if unclear.
 
 ## Related skills
 
-- Rich HTML visualization pipeline: `visualize-hmd`
-- Reading HackMD notes: workspace rule `hackmd-cli.mdc` (export before edit, diff before push)
+- Rich HTML visualization pipeline: `visualize-hmd` skill
+- Any other HackMD operation: the official `hackmd-cli` skill (`npx skills add hackmdio/hackmd-cli`)
 
 ## References
 
 - [../../shared/README.md](../../shared/README.md) — safe update contract, destination policy
-- [../../shared/references/api.md](../../shared/references/api.md) — folders, team routes, image upload
+- [../../shared/references/api.md](../../shared/references/api.md) — raw API fallback when the CLI is unavailable
 - [../../shared/scripts/safe-sync.sh](../../shared/scripts/safe-sync.sh) — push with recheck
 - [HackMD API swagger](https://api.hackmd.io/v1/docs/swagger.json)
 - [hackmd-cli](https://github.com/hackmdio/hackmd-cli)
