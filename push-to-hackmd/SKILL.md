@@ -91,7 +91,7 @@ npm install -g @hackmd/hackmd-cli
 
 Pipe large bodies: `cat file.md | hackmd-cli notes create --title="..."`.
 
-**Permalinks**: `--noteId` accepts `@team/slug` and `@user/slug` directly, e.g. `hackmd-cli export --noteId=@docs/hackmd-cli`. To get the internal id, use [../../shared/scripts/resolve-note.sh](../../shared/scripts/resolve-note.sh).
+**Note references**: read commands (`notes --noteId`, `export`) accept a permalink such as `@team/slug` directly. Before any update or `safe-sync.sh`, resolve URLs, permalinks, and short ids to the internal note id with [../../shared/scripts/resolve-note.sh](../../shared/scripts/resolve-note.sh).
 
 ---
 
@@ -141,6 +141,7 @@ Folder requested?
   → hackmd-cli folders --output=json (team: team-folders --teamPath=X --output=json)
         • exact name match → use its id as parentFolderId
         • no match → ask, then hackmd-cli folders create --name="..."
+          (team: hackmd-cli team-folders create --teamPath=X --name="...")
 ```
 
 Record `noteId`, `teamPath` (if any), `parentFolderId` (if folder used).

@@ -81,10 +81,10 @@ After creation, open `https://hackmd.io/<noteId>` (My workspace).
 ### REST API
 
 ```bash
-export HACKMD_API_TOKEN=your_token
-
+# Prefer hackmd-cli. Raw API only when the CLI is unavailable;
+# set HMD_API_ACCESS_TOKEN in your shell, never in a file you commit.
 curl -s -X POST https://api.hackmd.io/v1/notes \
-  -H "Authorization: Bearer $HACKMD_API_TOKEN" \
+  -H "Authorization: Bearer $HMD_API_ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
   -d "{\"title\":\"Visualization — My Topic\",\"content\":$(jq -Rs . < viz-hackmd.html),\"readPermission\":\"owner\",\"writePermission\":\"owner\"}"
 ```
