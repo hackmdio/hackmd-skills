@@ -18,6 +18,12 @@
       "prompt": "save to HackMD the HTML viz in /tmp/viz.html — update note WNkLM6gkS0Cg2cQ8rv7bYA if it still matches remote",
       "expected_output": "Agent exports baseline, diffs before update, merges if remote changed, updates note, reminds Custom CSS for HTML",
       "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "publish ./docs/release-notes.md to HackMD, including the local diagram it references",
+      "expected_output": "Agent creates the note, uploads the image with hackmd-cli api call UploadNoteImage, replaces the local path with the returned link via a safe update, and reports the URL",
+      "files": []
     }
   ]
 }
